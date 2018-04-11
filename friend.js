@@ -49,12 +49,28 @@ var self = module.exports = {
     })
   },
 
+  // Assuming friendship status stays the same if one blocks the other
   getFriends: function(target) {
-    return Promise.resolve([]);
+    return db.query(`select requestor from connection where target=$/target/ and type='friend'`, {
+      target
+    })
+    .map(x => x.requestor);
   },
 
   getCommonFriends: function(email1, email2) {
-    return Promise.resolve([]);
+    if (email1 == email2) {
+      var err = new Error("Emails must be different");
+      err.statusCode = 400;
+      return Promise.reject(err);
+    }
+
+    return db.query(`select requestor from connection where target=$/email1/
+      intersect
+      (select requestor from connection where target=$/email2/)`, {
+        email1,
+        email2
+      })
+      .map(x => x.requestor);
   },
 
   block: function(blocker, blockee) {
