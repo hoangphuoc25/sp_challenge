@@ -1,0 +1,23 @@
+{
+  "name": "spchallenge",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/bootstrap.test.js test/**.test.js",
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.4.1",
+    "body-parser": "^1.18.2",
+    "express": "^4.16.3",
+    "lodash": "^4.17.5",
+    "pg-promise": "^8.2.2"
+  },
+  "devDependencies": {
+    "axios": "^0.18.0",
+    "should": "^13.2.1"
+  }
+}

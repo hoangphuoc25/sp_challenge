@@ -1,0 +1,33 @@
+version: '2.1'
+services:
+  web:
+    build: .
+    # command: node index.js
+    command: bash -c "db-migrate up --config database.json --sql-file && mocha test/bootstrap.test.js test/**.test.js && exit"
+    # entrypoint: ./docker-entrypoint.sh postgres 5432
+    volumes:
+      - .:/app
+      - ./migrations:/app/migrations
+      - ./migrations/sqls:/app/migrations/sqls
+      - node_modules:/app/node_modules
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgres://postgres@postgres/sp
+  postgres:
+    image: postgres:9.6.2-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: sp
+    ports:
+      - "9900:5432"
+    healthcheck:
+      test: psql -U postgres -h postgres -d sp -c '\l'
+      interval: 3s
+      timeout: 1s
+volumes:
+  node_modules:
