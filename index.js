@@ -14,7 +14,7 @@ app.use(function(req, res, next) {
       .json(responseBody)
   }
 
-  res.fail = function(err) {
+  res.jsonError = function(err) {
     const responseBody = Object.assign({}, { success: false }, { message: err.message });
     return res.status(err.statusCode || 500)
       .json(responseBody);

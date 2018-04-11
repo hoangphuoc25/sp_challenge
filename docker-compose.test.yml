@@ -1,4 +1,4 @@
 version: '2.1'
 services:
   web:
-    command: bash -c "db-migrate up --config database.json --sql-file && mocha test/bootstrap.test.js test/**.test.js && exit"
+    command: bash -c "db-migrate up --config database.json --sql-file && mocha test/bootstrap.test.js test/**.test.js"

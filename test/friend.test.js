@@ -100,7 +100,7 @@ describe('test friend endpoints', () => {
           err.response.data.message.should.eql('Unable to add friend: in blocklist');
           done();
         })
-    });
+    });``
   });
 
   describe('get friends', () => {
@@ -221,6 +221,100 @@ describe('test friend endpoints', () => {
           e.response.status.should.eql(400);
           e.response.data.message.should.eql('Emails must be different');
           done();
+        })
+    });
+  });
+
+  describe('follow', () => {
+    it('sucess case', done => {
+      axios.post(`${baseUrl}/subscription`, {
+          requestor: 'email3@gmail.com',
+          target: 'email4@gmail.com',
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => {
+          response.data.success.should.eql(true);
+          return db.query(`select * from connection where requestor='email3@gmail.com'`)
+        })
+        .then(result => {
+          result.length.should.eql(1);
+          result[0].target.should.eql('email4@gmail.com');
+          done();
+        })
+        .catch(e => {
+          done(e.message);
+        })
+    });
+
+    it('invalid data identical emails', done => {
+      axios.post(`${baseUrl}/subscription`, {
+          requestor: 'email3@gmail.com',
+          target: 'email3@gmail.com',
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(result => {
+          done('should not reach here');
+        })
+        .catch(e => {
+          e.response.status.should.eql(400);
+          e.response.data.message.should.eql('Emails must be different');
+          done();
+        })
+    });
+
+    it('invalid data email missing', done => {
+      axios.post(`${baseUrl}/subscription`, {
+          requestor: 'email3@gmail.com'
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(result => {
+          done('should not reach here');
+        })
+        .catch(e => {
+          e.response.status.should.eql(400);
+          e.response.data.message.should.eql('Requestor and target emails are required');
+          done();
+        })
+    });
+  });
+
+  describe('get list of subscription', () => {
+    beforeEach(done => {
+      db.query(`insert into connection 
+          values (DEFAULT, $/email1/, $/email2/, 'friend'), (DEFAULT, $/email2/, $/email1/, 'friend')`, {
+        email1: 'email1@gmail.com',
+        email2: 'email2@gmail.com',
+      })
+      .then(() => done())
+    });
+
+    it('normal case', done => {
+      axios.post(`${baseUrl}/query/subscriptions`, {
+          "sender": "email1@gmail.com",
+          "text": "Hello World! email3@gmail.com"
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(resp => {
+          resp.status.should.eql(200);
+          resp.data.recipients.length.should.eql(2);
+          resp.data.recipients.should.containEql('email2@gmail.com');
+          resp.data.recipients.should.containEql('email3@gmail.com');
+          done();
+        })
+        .catch(e => {
+          done(e.message);
         })
     });
   });

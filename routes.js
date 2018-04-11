@@ -1,5 +1,4 @@
 const friend = require('./friend.js');
-var Promise = require('bluebird');
 
 module.exports = function(app) {
   app.post('/friend', function(req, res, next) {
@@ -7,102 +6,54 @@ module.exports = function(app) {
       .then(result => {
         return res.ok();
       })
-      .catch(err => {
-        res.status(err.statusCode || 500)
-          .json({
-            success: false,
-            message: err.message
-          })
-      })
+      .catch(res.jsonError)
   });
 
   app.get('/friends', function(req, res, next) {
     return friend.getFriends(req.query.email)
       .then(result => {
-        return res.status(200)
-          .json({
-            success: true,
-            friends: result,
-            count: result.length
-          })
+        return res.ok({
+          friends: result,
+          count: result.length
+        })
       })
-      .catch(err => {
-        res.status(err.statusCode || 500)
-          .json({
-            success: false,
-            message: err.message
-          })
-      });
+      .catch(res.jsonError);
   });
 
   app.get('/commonFriends', function(req, res, next) {
     return friend.getCommonFriends(req.query.email1, req.query.email2)
       .then(result => {
-        return res.status(200)
-          .json({
-            success: true,
-            friends: result,
-            count: result.length
-          })
+        return res.ok({
+          friends: result,
+          count: result.length
+        });
       })
-      .catch(err => {
-        res.status(err.statusCode || 500)
-          .json({
-            success: false,
-            message: err.message
-          })
-      });
+      .catch(res.jsonError);
   });
 
   app.post('/blocking', function(req, res, next) {
     return friend.block(req.body.requestor, req.body.target)
       .then(result => {
-        return res.status(200)
-          .json({
-            success: true,
-          })
+        return res.ok();
       })
-      .catch(err => {
-        res.status(err.statusCode || 500)
-          .json({
-            success: false,
-            message: err.message
-          })
-      });
+      .catch(res.jsonError);
   });
 
   app.post('/subscription', function(req, res, next) {
     return friend.addSubscription(req.body.requestor, req.body.target)
       .then(result => {
-        return res.status(200)
-          .json({
-            success: true
-          });
+        return res.ok();
       })
-      .catch(err => {
-        res.status(err.statusCode || 500)
-          .json({
-            success: false,
-            message: err.message
-          })
-      });
+      .catch(res.jsonError);
   });
 
   app.post('/query/subscriptions', function(req, res, next) {
     return friend.getSubscription(req.body.sender, req.body.text)
       .then(result => {
-        return res.status(200)
-          .json({
-            success: true,
-            recipients: result
-          });
+        return res.ok({
+          recipients: result
+        });
       })
-      .catch(err => {
-        res.status(err.statusCode || 500)
-          .json({
-            success: false,
-            message: err.message
-          })
-      });
+      .catch(res.jsonError);
   });
 }
