@@ -58,7 +58,22 @@ var self = module.exports = {
   },
 
   block: function(blocker, blockee) {
-    return Promise.resolve(true);
+    if (!blocker || !blockee) {
+      var err = new Error("requestor and target are required");
+      err.statusCode = 400;
+      return Promise.reject(err);
+    }
+
+    if (blocker == blockee) {
+      var err = new Error("Emails must be different");
+      err.statusCode = 400;
+      return Promise.reject(err);
+    }
+
+    return db.query(`insert into block_list (id, blocker, blockee) values (DEFAULT, $/blocker/, $/blockee/)`, {
+      blocker: blocker,
+      blockee: blockee
+    });
   },
 
   addSubscription: function(follower, followee) {

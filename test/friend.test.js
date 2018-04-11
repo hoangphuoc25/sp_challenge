@@ -76,5 +76,81 @@ describe('test friend endpoints', () => {
         done();
       });
     });
+
+    it('should not add friend if blocked', done => {
+      axios.post(`${baseUrl}/blocking`, {
+          requestor: 'email3@gmail.com',
+          target: 'email4@gmail.com',
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(() => {
+          return axios.post(`${baseUrl}/friend`, {
+            friends: [
+              "email4@gmail.com",
+              "email3@gmail.com"
+            ]
+          }, {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+        })
+        .then(() => {
+          done('should not reach here')
+        })
+        .catch(err => {
+          err.response.status.should.eql(400);
+          err.response.data.message.should.eql('Unable to add friend: in blocklist');
+          done();
+        })
+    });
   });
+
+  describe('block', () => {
+    it('success case', done => {
+      axios.post(`${baseUrl}/blocking`, {
+          requestor: 'email3@gmail.com',
+          target: 'email4@gmail.com',
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(resp => {
+          resp.status.should.eql(200);
+          return db.query(`select * from block_list where blocker='email3@gmail.com'`)
+        })
+        .then(result => {
+          result.length.should.eql(1);
+          result[0].blockee.should.eql('email4@gmail.com');
+          done();
+        })
+        .catch(e => {
+          done(e.message);
+        })
+    });
+
+    it('invalid input idential emails', done => {
+      axios.post(`${baseUrl}/blocking`, {
+          requestor: 'email3@gmail.com',
+          target: 'email3@gmail.com',
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(resp => {
+          done('should not reach here');
+        })
+        .catch(e => {
+          e.response.status.should.eql(400);
+          e.response.data.message.should.eql('Emails must be different');
+          done();
+        })
+    });
+  });
+    
 });
