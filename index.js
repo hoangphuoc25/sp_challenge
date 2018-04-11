@@ -7,6 +7,21 @@ const bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
+app.use(function(req, res, next) {
+  res.ok = function(result) {
+    const responseBody = Object.assign({}, { success: true }, result);
+    return res.status(200)
+      .json(responseBody)
+  }
+
+  res.fail = function(err) {
+    const responseBody = Object.assign({}, { success: false }, { message: err.message });
+    return res.status(err.statusCode || 500)
+      .json(responseBody);
+  }
+  next();
+});
+
 app.set('port', (process.env.PORT || 5000))
 
 routes(app);

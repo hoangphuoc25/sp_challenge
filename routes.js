@@ -1,15 +1,11 @@
 const friend = require('./friend.js');
-// const subscription = require('./subscription.js');
 var Promise = require('bluebird');
 
 module.exports = function(app) {
   app.post('/friend', function(req, res, next) {
     return friend.addFriend(req.body.friends)
       .then(result => {
-        return res.status(200)
-          .json({
-            success: true,
-          })
+        return res.ok();
       })
       .catch(err => {
         res.status(err.statusCode || 500)
