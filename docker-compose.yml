@@ -2,9 +2,7 @@ version: '2.1'
 services:
   web:
     build: .
-    # command: node index.js
-    command: bash -c "db-migrate up --config database.json --sql-file && mocha test/bootstrap.test.js test/**.test.js && exit"
-    # entrypoint: ./docker-entrypoint.sh postgres 5432
+    command: bash -c "db-migrate up --config database.json --sql-file && node index.js"
     volumes:
       - .:/app
       - ./migrations:/app/migrations

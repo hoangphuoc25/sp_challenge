@@ -41,12 +41,7 @@ var self = module.exports = {
         err.statusCode = 400;
         return Promise.reject(err);
       }
-    })
-    .catch(e => {
-      console.log('e.message', e.message);
-      console.log('e', e.stack);
-      throw e;
-    })
+    });
   },
 
   // Assuming friendship status stays the same if one blocks the other
@@ -105,30 +100,17 @@ var self = module.exports = {
       return Promise.reject(err); 
     }
 
-    return db.query(`select * from block_list
-      where blocker=$/follower/ and blockee=$/followee/
-      or blocker=$/followee/ and blockee=$/follower/`, {
-      follower, followee
-    })
-    .then(result => {
-      if (result.length == 0) {
-        return db.query(`insert into connection (id, requestor, target, type) 
-            values
-            (DEFAULT, $/follower/, $/followee/, 'follow')`, {
-          follower,
-          followee
-        })
-      } else {
-        var err = new Error("Unable to add friend: in blocklist");
-        err.statusCode = 400;
-        return Promise.reject(err);
-      }
-    })
+    return db.query(`insert into connection (id, requestor, target, type) 
+        values
+        (DEFAULT, $/follower/, $/followee/, 'follow')`, {
+      follower,
+      followee
+    });
   },
 
   getSubscription: function(email, text) {
     var followingPromise = db.query(`select distinct(requestor) from connection where target=$/email/
-      and requestor not in (select blockee from block_list where blocker=$/email/)`, {
+      and requestor not in (select blocker from block_list where blockee=$/email/)`, {
         email
       })
       .map(x => x.requestor);

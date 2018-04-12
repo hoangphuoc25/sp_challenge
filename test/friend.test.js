@@ -300,7 +300,7 @@ describe('test friend endpoints', () => {
     it('normal case', done => {
       axios.post(`${baseUrl}/query/subscriptions`, {
           "sender": "email1@gmail.com",
-          "text": "Hello World! email3@gmail.com"
+          "text": "Hello World! email3@gmail.com email4@gmail.com"
         }, {
           headers: {
             'Content-Type': 'application/json'
@@ -308,9 +308,10 @@ describe('test friend endpoints', () => {
         })
         .then(resp => {
           resp.status.should.eql(200);
-          resp.data.recipients.length.should.eql(2);
+          resp.data.recipients.length.should.eql(3);
           resp.data.recipients.should.containEql('email2@gmail.com');
           resp.data.recipients.should.containEql('email3@gmail.com');
+          resp.data.recipients.should.containEql('email4@gmail.com');
           done();
         })
         .catch(e => {

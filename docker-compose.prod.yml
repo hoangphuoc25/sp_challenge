@@ -2,4 +2,3 @@ version: '2.1'
 services:
   web:
     command: bash -c "db-migrate up --config database.json --sql-file && node index.js"
-    #docker-compose -f docker-compose.yml -f docker-compose.prod.yml up web
