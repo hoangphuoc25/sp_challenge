@@ -1,4 +1,5 @@
-const db = require('./db.js').db;
+var isemail = require('isemail');
+const db = require('../db.js').db;
 const Promise = require('bluebird');
 const _ = require('lodash');
 
@@ -127,6 +128,6 @@ var self = module.exports = {
   getEmails: function(text) {
     var tokens = text.split(/[\s*\?\';]/);
     var emailRegex = /\S+@\S+\.\S+/
-    return _.filter(tokens, x => x.match(emailRegex))
+    return _.filter(tokens, x => isemail.validate(x))
   }
 }

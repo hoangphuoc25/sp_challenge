@@ -1,4 +1,4 @@
-const friend = require('./friend.js');
+const friend = require('./services/ConnectionService.js');
 
 module.exports = function(app) {
   app.post('/friend', function(req, res, next) {
